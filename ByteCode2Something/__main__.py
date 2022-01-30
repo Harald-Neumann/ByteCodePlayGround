@@ -8,10 +8,11 @@ a = 5
 b = 'text'
 def f(x):
     def g(y):
-        return 2 + y
+        return x + y
     return x + 1
 f(5)
-
+def LoL():
+    pass
 if a > 12:
     print(b)
 else:

@@ -1,6 +1,9 @@
 from dataclasses import dataclass
+from types import CodeType
+
 
 import dis
+from operator import ne
 
 
 @dataclass
@@ -14,7 +17,7 @@ class ByteCode:
         return dis.opname[self.opcode]
 
     def __str__(self):
-        return f"{self.opname} {self.arg if self.opcode > dis.HAVE_ARGUMENT else ''}"
+        return f"{self.opname} {self.arg}"
 
     def __post_init__(self):
         if self.opcode < dis.HAVE_ARGUMENT:
@@ -23,7 +26,7 @@ class ByteCode:
 
 
 class DeByter:
-    def __init__(self, code):
+    def __init__(self, code: CodeType):
         self.code = code
         self.bytes = iter(code.co_code)
 
@@ -35,8 +38,6 @@ class DeByter:
             tmp = ByteCode(next(self.bytes), next(self.bytes))
             if tmp.opcode in dis.hasconst:
                 tmp.arg = self.code.co_consts[tmp.arg]
-                if isinstance(tmp.arg, str):
-                    tmp.arg = f'"{tmp.arg}"'
                 tmp.color = "red"
             elif tmp.opcode in dis.hasname:
                 tmp.arg = self.code.co_names[tmp.arg]
@@ -48,8 +49,13 @@ class DeByter:
                 tmp.arg = dis.cmp_op[tmp.arg]
                 tmp.color = "yellow"
             elif tmp.opcode in dis.hasfree:
-                tmp.arg = self.code.co_cellvars[tmp.arg]
+                tmp.arg = (self.code.co_cellvars + self.code.co_freevars)[tmp.arg]
                 tmp.color = "magenta"
+            elif tmp.opcode in dis.hasjrel: # Relative jump
+                tmp.color = "dark_goldenrod" #ToDo
+            elif tmp.opcode in dis.hasjabs: # Absolute jump
+                tmp.color = "black"
+
             return tmp
         except StopIteration:
             raise StopIteration
