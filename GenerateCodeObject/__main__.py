@@ -14,9 +14,18 @@ console = Console()
 #     RETURN_VALUE
 # """
 
+# code = """
+#     LOAD_CONST 4
+#     STORE_NAME a
+#     LOAD_CONST 4
+#     RETURN_VALUE
+# """
+
 code = """
-    LOAD_CONST 4
+    LOAD_CONST 12
     STORE_NAME a
+    LOAD_CONST $0
+    STORE_NAME b
     LOAD_CONST None
     RETURN_VALUE
 """
@@ -34,8 +43,8 @@ def printByteCode(code, indent=0):
         console.print(bytecode.opname, style=bytecode.color, end=" ")
         console.print(f"{bytecode.arg}" + ("" if bytecode.arg_resolved == "" else f" ({bytecode.arg_resolved})"))
 
-
-print(len(asm.co_code))
+printByteCode(asm)
 exec(asm)
 
 print(a)
+print(b)
